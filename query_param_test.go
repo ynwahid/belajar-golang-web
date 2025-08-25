@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -43,6 +44,27 @@ func TestMultipleQueryParams(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	MultipleQueryParameters(recorder, request)
+
+	response := recorder.Body
+	body, _ := io.ReadAll(response)
+	fmt.Println(string(body))
+}
+
+func MultipleValuesQueryParameters(writer http.ResponseWriter, request *http.Request) {
+	query := request.URL.Query()
+	names := query["name"]
+	fmt.Fprintf(writer, "Hello %s", strings.Join(names, " "))
+}
+
+func TestMultipleValuesQueryParameters(t *testing.T) {
+	request := httptest.NewRequest(
+		http.MethodPost,
+		"http://localhost:8080/hello?name=Ucup&name=Nur&name=Wahid",
+		nil,
+	)
+	recorder := httptest.NewRecorder()
+
+	MultipleValuesQueryParameters(recorder, request)
 
 	response := recorder.Body
 	body, _ := io.ReadAll(response)
