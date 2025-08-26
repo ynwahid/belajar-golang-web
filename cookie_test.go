@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -38,5 +39,17 @@ func TestCookie(t *testing.T) {
 	err := server.ListenAndServe()
 	if err != nil {
 		panic(err)
+	}
+}
+
+func TestSetCookie(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080/?name=Ucup", nil)
+	recorder := httptest.NewRecorder()
+
+	SetCookie(recorder, request)
+
+	cookies := recorder.Result().Cookies()
+	for _, cookie := range cookies {
+		fmt.Printf("Cookie %s:%s\n", cookie.Name, cookie.Value)
 	}
 }
