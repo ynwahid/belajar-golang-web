@@ -17,7 +17,7 @@ func TemplateLayout(writer http.ResponseWriter, request *http.Request) {
 	))
 	t.ExecuteTemplate(
 		writer,
-		"layout.gohtml",
+		"layout",
 		map[string]any{
 			"Title": "Template Layout",
 			"Name":  "Ucup",
