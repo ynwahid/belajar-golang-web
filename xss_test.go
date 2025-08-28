@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -29,6 +30,25 @@ func TestTemplateAutoEscapeServer(t *testing.T) {
 	server := http.Server{
 		Addr:    "localhost:8080",
 		Handler: http.HandlerFunc(TemplateAutoEscape),
+	}
+
+	err := server.ListenAndServe()
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TemplateAutoEscapeDisabled(writer http.ResponseWriter, request *http.Request) {
+	myTemplates.ExecuteTemplate(writer, "post.gohtml", map[string]any{
+		"Title": "Template Auto Escape Disabled",
+		"Body":  template.HTML("<h1>Ini adalah body</h1>"),
+	})
+}
+
+func TestTemplateAutoEscapeDisabled(t *testing.T) {
+	server := http.Server{
+		Addr:    "localhost:8080",
+		Handler: http.HandlerFunc(TemplateAutoEscapeDisabled),
 	}
 
 	err := server.ListenAndServe()
