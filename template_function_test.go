@@ -75,3 +75,30 @@ func TestTemplateFunctionCreateGlobal(t *testing.T) {
 	body, _ := io.ReadAll(recorder.Result().Body)
 	fmt.Println(string(body))
 }
+
+func TemplateFunctionCreatePipeline(writer http.ResponseWriter, request *http.Request) {
+	t := template.New("FUNCTION")
+	t = t.Funcs(template.FuncMap{
+		"sayHello": func(name string) string {
+			return "Hello " + name
+		},
+		"upper": func(value string) string {
+			return strings.ToUpper(value)
+		},
+	})
+	t = template.Must(t.Parse(`{{ sayHello .Name | upper }}`))
+
+	t.ExecuteTemplate(writer, "FUNCTION", MyPage{
+		Name: "Ucup",
+	})
+}
+
+func TestTemplateFunctionCreatePipeline(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "http://localhost:8080", nil)
+	recorder := httptest.NewRecorder()
+
+	TemplateFunctionCreatePipeline(recorder, request)
+
+	body, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(body))
+}
