@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	_ "embed"
+	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 )
@@ -51,4 +56,25 @@ func TestUploadForm(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+//go:embed resources/globe.svg
+var uploadFileTest []byte
+
+func TestUploadFile(t *testing.T) {
+	body := bytes.NewBuffer(nil)
+	writer := multipart.NewWriter(body)
+	writer.WriteField("name", "Ucup Nur Wahid")
+	file, _ := writer.CreateFormFile("file", "CONTOHUPLOAD.svg")
+	file.Write(uploadFileTest)
+	writer.Close()
+
+	request := httptest.NewRequest(http.MethodPost, "http://localhost:8080/upload", body)
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+	recorder := httptest.NewRecorder()
+
+	Upload(recorder, request)
+
+	respBody, _ := io.ReadAll(recorder.Result().Body)
+	fmt.Println(string(respBody))
 }
